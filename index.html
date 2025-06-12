@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive SPA: Freewheel Targeting Test Plan</title>
     <!-- Chosen Palette: Slate Gray and Sky Blue -->
-    <!-- Application Structure Plan: A single-page dashboard layout with three primary sections: "Simple Logic Tests," "Advanced Logic Tests," and an "Automation Flow" visualization. The first two sections will use interactive tables with hover and filter functionalities to allow easy exploration of test cases. The final section will visually recreate the provided Mermaid flowchart using custom HTML/CSS and JS to provide an intuitive overview of the testing process. This structure was chosen to separate distinct test categories for clarity while the flowchart synthesizes the entire strategy, catering to both detailed analysis and high-level understanding. -->
-    <!-- Visualization & Content Choices: Report Info: Test Cases (Simple & Advanced) -> Goal: Organize & Compare -> Viz/Presentation Method: Interactive HTML Tables (Tailwind CSS) -> Interaction: Hover to highlight, click for details (future enhancement), filter by category (JS) -> Justification: Tables are the standard and most effective way to present structured test case data, allowing for easy comparison of inputs and expected outcomes. | Report Info: Test Automation Flow (Mermaid Diagram) -> Goal: Visualize Process -> Viz/Presentation Method: Custom HTML/CSS/JS Flowchart -> Interaction: Hover on nodes for tooltips -> Justification: A visual flowchart is more engaging and easier to understand for stakeholders than text or a static diagram. Recreating it without Mermaid JS (using divs and JS for lines) adheres to constraints while providing a dynamic "wow" factor. -->
+    <!-- Application Structure Plan: A single-page dashboard layout. I've added a new "Testim Integration" section that provides actionable tools. This section includes a code snippet showing how to format the data for Testim's JS editor and a button to export all test cases to a CSV file, which can be directly uploaded to Testim. I've also added a "Link to Testim" column in the tables. This structure now serves as a full-cycle hub: documenting the plan, providing the data for automation, and linking to the live tests for easy navigation and status checks. -->
+    <!-- Visualization & Content Choices: Report Info: Test Cases (Simple & Advanced) -> Goal: Organize & Export -> Viz/Presentation Method: Interactive HTML Tables -> Interaction: Hover to highlight, "Export to CSV" button (JS) -> Justification: The tables are now the direct source for a CSV export, making the plan actionable. The export function transforms the HTML/descriptive data into a clean, Testim-ready format. | Report Info: Testim Data Setup -> Goal: Instruct & Enable -> Viz/Presentation Method: Explanatory text and a pre-formatted code block -> Interaction: Copy code snippet -> Justification: Directly addresses the user's provided documentation, showing them how the table data maps to the format needed by their automation tool. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,46 +18,11 @@
             background-color: #f8fafc;
             color: #1e293b;
         }
-        .flowchart-node {
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 10;
-        }
-        .flowchart-node:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .flowchart-line {
-            position: absolute;
-            background-color: #cbd5e1;
-            z-index: 1;
-        }
-        .arrow-down {
-            width: 0;
-            height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 8px solid #cbd5e1;
-            position: absolute;
-            transform: translateX(-50%);
-        }
-        .arrow-right {
-            width: 0;
-            height: 0;
-            border-top: 6px solid transparent;
-            border-bottom: 6px solid transparent;
-            border-left: 8px solid #cbd5e1;
-            position: absolute;
-            transform: translateY(-50%);
-        }
-        .arrow-left {
-            width: 0;
-            height: 0;
-            border-top: 6px solid transparent;
-            border-bottom: 6px solid transparent;
-            border-right: 8px solid #cbd5e1;
-            position: absolute;
-            transform: translateY(-50%);
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .table-code {
             font-family: monospace;
@@ -67,34 +32,13 @@
             font-size: 0.8em;
             color: #475569;
         }
-        .card {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .tag {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-weight: 500;
-            font-size: 0.75rem;
-        }
-        .tag-core {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-        .tag-edge-case {
-            background-color: #dcfce7;
-            color: #15803d;
-        }
-        .tag-negative {
-            background-color: #fee2e2;
-            color: #991b1b;
+        pre {
+            background-color: #f1f5f9;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+            color: #334155;
+            font-size: 0.875rem;
         }
     </style>
 </head>
@@ -110,11 +54,42 @@
 
         <main class="space-y-16">
             
-            <!-- Section 1: Simple Logic -->
+            <!-- Section 1: Testim Integration -->
+            <section id="testim-integration">
+                <div class="mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-700">Testim Integration & Data Export</h2>
+                    <p class="mt-2 text-slate-500">Use the data on this page to power your data-driven tests in Testim. You can either export all test cases as a CSV file for direct upload or copy the JavaScript object format below.</p>
+                </div>
+                <div class="card p-6 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-700 mb-2">Export for Testim</h3>
+                        <p class="text-slate-600 mb-4">Click the button to download a CSV file containing all test cases from this plan. This file is structured for direct upload into Testim's "Test Data" feature.</p>
+                        <button id="export-csv-btn" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                            Export All Cases to CSV
+                        </button>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-700 mb-2">JavaScript Data Format</h3>
+                        <p class="text-slate-600 mb-4">Alternatively, you can copy this structure into the Testim JS editor for test data.</p>
+                        <pre><code>return [{
+  "testCaseID": "FW-SIM-001",
+  "description": "Single Included Item",
+  "setupLogic": "Include: A"
+},{
+  "testCaseID": "FW-SIM-002",
+  "description": "Single Excluded Item",
+  "setupLogic": "Exclude: A"
+}, ...
+];</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 2: Simple Logic -->
             <section id="simple-logic">
                 <div class="mb-8">
                     <h2 class="text-2xl md:text-3xl font-bold text-slate-700">Part 1: Simple Logic Test Cases</h2>
-                    <p class="mt-2 text-slate-500">This section validates the default handling of included and excluded audience lists. The core rule tested is that the `Include` list and `Exclude` list are joined by an **AND** operator, while items *within* each list are joined by **OR**.</p>
+                    <p class="mt-2 text-slate-500">Validates default handling of included/excluded lists. Rule: `Include` and `Exclude` lists are joined by **AND**; items *within* each list are joined by **OR**.</p>
                 </div>
                 <div class="card p-6 overflow-x-auto">
                     <table class="w-full text-left">
@@ -123,7 +98,8 @@
                                 <th class="p-4">Test Case</th>
                                 <th class="p-4">Description</th>
                                 <th class="p-4">ADvendio Setup (Input)</th>
-                                <th class="p-4 text-center">Expected Outcome (Freewheel)</th>
+                                <th class="p-4 text-center">Expected Outcome</th>
+                                <th class="p-4 text-center">Link to Test</th>
                             </tr>
                         </thead>
                         <tbody id="simple-logic-table" class="divide-y divide-slate-100"></tbody>
@@ -131,36 +107,26 @@
                 </div>
             </section>
 
-            <!-- Section 2: Advanced Logic -->
+            <!-- Section 3: Advanced Logic -->
             <section id="advanced-logic">
                 <div class="mb-8">
                     <h2 class="text-2xl md:text-3xl font-bold text-slate-700">Part 2: Advanced Logic & Edge Cases</h2>
-                    <p class="mt-2 text-slate-500">These tests validate the advanced grouping functionality, which applies only to "Included" segments. Freewheel supports a maximum of three groups, with customizable AND/OR logic both within and between groups.</p>
+                    <p class="mt-2 text-slate-500">Validates advanced grouping for "Included" segments only. Freewheel supports a max of three groups.</p>
                 </div>
                 <div class="card p-6 overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="border-b-2 border-slate-200 text-slate-500">
+                         <thead class="border-b-2 border-slate-200 text-slate-500">
                             <tr>
                                 <th class="p-4">Test Case</th>
                                 <th class="p-4">Description</th>
                                 <th class="p-4">ADvendio Setup (Input)</th>
-                                <th class="p-4 text-center">Expected Outcome (Freewheel)</th>
+                                <th class="p-4 text-center">Expected Outcome</th>
                                 <th class="p-4 text-center">Type</th>
+                                <th class="p-4 text-center">Link to Test</th>
                             </tr>
                         </thead>
                         <tbody id="advanced-logic-table" class="divide-y divide-slate-100"></tbody>
                     </table>
-                </div>
-            </section>
-            
-            <!-- Section 3: Flowchart -->
-            <section id="flowchart">
-                <div class="mb-8">
-                    <h2 class="text-2xl md:text-3xl font-bold text-slate-700">Part 3: Test Automation Flow</h2>
-                    <p class="mt-2 text-slate-500">This diagram illustrates the recommended end-to-end automation strategy. The process is broken into three phases (Setup, Validation, and Teardown) to ensure tests are repeatable and the environment remains clean.</p>
-                </div>
-                <div class="card p-6 md:p-10 relative" id="flowchart-container" style="min-height: 1200px;">
-                    <!-- Flowchart will be rendered here by JavaScript -->
                 </div>
             </section>
 
@@ -169,25 +135,22 @@
 
     <script>
         const simpleLogicData = [
-            { id: 'FW-SIM-001', desc: 'Single Included Item', rule: '`Include` list processing.', setup: 'Add <strong>Audience A</strong> to Include list.', outcome: 'A' },
-            { id: 'FW-SIM-002', desc: 'Single Excluded Item', rule: '`Exclude` list processing.', setup: 'Add <strong>Audience A</strong> to Exclude list.', outcome: '!A' },
-            { id: 'FW-SIM-003', desc: 'Multiple Included Items', rule: 'Items in `Include` are joined by OR.', setup: 'Add <strong>A</strong>, <strong>B</strong>, <strong>C</strong> to Include list.', outcome: '(A | B | C)' },
-            { id: 'FW-SIM-004', desc: 'Multiple Excluded Items', rule: 'Items in `Exclude` are joined by OR.', setup: 'Add <strong>X</strong>, <strong>Y</strong>, <strong>Z</strong> to Exclude list.', outcome: '!(X | Y | Z)' },
-            { id: 'FW-SIM-005', desc: 'Mix of Included & Excluded', rule: '`Include` and `Exclude` lists are joined by AND.', setup: '<strong>Include:</strong> A, B<br><strong>Exclude:</strong> X, Y', outcome: '(A | B) & !(X | Y)' }
+            { id: 'FW-SIM-001', desc: 'Single Included Item', setup: 'Add <strong>Audience A</strong> to Include list.', outcome: 'A', testimLink: '#' },
+            { id: 'FW-SIM-002', desc: 'Single Excluded Item', setup: 'Add <strong>Audience A</strong> to Exclude list.', outcome: '!A', testimLink: '#' },
+            { id: 'FW-SIM-003', desc: 'Multiple Included Items', setup: 'Add <strong>A</strong>, <strong>B</strong>, <strong>C</strong> to Include list.', outcome: '(A | B | C)', testimLink: '#' },
+            { id: 'FW-SIM-004', desc: 'Multiple Excluded Items', setup: 'Add <strong>X</strong>, <strong>Y</strong>, <strong>Z</strong> to Exclude list.', outcome: '!(X | Y | Z)', testimLink: '#' },
+            { id: 'FW-SIM-005', desc: 'Mix of Included & Excluded', setup: '<strong>Include:</strong> A, B<br><strong>Exclude:</strong> X, Y', outcome: '(A | B) & !(X | Y)', testimLink: '#' }
         ];
 
         const advancedLogicData = [
-            { category: 'Intra-Group Logic' },
-            { id: 'FW-ADV-001', desc: 'One Group with AND logic', rule: 'Logic within a single set (AND).', setup: '<strong>Set 1:</strong> A & B (logic set to AND)', outcome: '(A & B)', type: 'Core' },
-            { id: 'FW-ADV-002', desc: 'One Group with OR logic', rule: 'Logic within a single set (OR).', setup: '<strong>Set 1:</strong> A | B (logic set to OR)', outcome: '(A | B)', type: 'Core' },
-            { category: 'Inter-Group Logic (2 Sets)' },
-            { id: 'FW-ADV-003', desc: 'Two Groups with AND', rule: 'Logic *between* sets is AND.', setup: '<strong>Set 1:</strong> A & B<br><strong>Joiner:</strong> AND<br><strong>Set 2:</strong> C & D', outcome: '(A & B) & (C & D)', type: 'Core' },
-            { id: 'FW-ADV-004', desc: 'Two Groups with OR', rule: 'Logic *between* sets is OR.', setup: '<strong>Set 1:</strong> A & B<br><strong>Joiner:</strong> OR<br><strong>Set 2:</strong> C & D', outcome: '(A & B) | (C & D)', type: 'Core' },
-            { id: 'FW-ADV-005', desc: 'Two Groups, Mixed Logic', rule: 'Complex combination.', setup: '<strong>Set 1:</strong> A & B<br><strong>Joiner:</strong> AND<br><strong>Set 2:</strong> C | D', outcome: '(A & B) & (C | D)', type: 'Core' },
-            { category: 'Limit and Edge Cases (3 Sets)' },
-            { id: 'FW-ADV-006', desc: 'Max Complexity (AND, OR)', rule: 'Limit of 3 sets; mixed joiners.', setup: '<strong>Set 1:</strong> A & B<br><strong>Joiner:</strong> AND<br><strong>Set 2:</strong> C | D<br><strong>Joiner:</strong> OR<br><strong>Set 3:</strong> E & F', outcome: '((A & B) & (C | D)) | (E & F)', type: 'Edge Case' },
-            { id: 'FW-ADV-007', desc: 'Max Complexity (OR, AND)', rule: 'Limit of 3 sets; mixed joiners.', setup: '<strong>Set 1:</strong> A | B<br><strong>Joiner:</strong> OR<br><strong>Set 2:</strong> C & D<br><strong>Joiner:</strong> AND<br><strong>Set 3:</strong> E | F', outcome: '(A | B) | ((C & D) & (E | F))', type: 'Edge Case' },
-            { id: 'FW-ADV-008', desc: 'Attempt > 3 groups', rule: 'Gateway should prevent this.', setup: 'Attempt to create and submit 4 sets.', outcome: 'Submit fails / Validation Error', type: 'Negative' }
+            { id: 'FW-ADV-001', desc: 'One Group with AND logic', setup: '<strong>Set 1:</strong> A & B (logic set to AND)', outcome: '(A & B)', type: 'Core', testimLink: '#' },
+            { id: 'FW-ADV-002', desc: 'One Group with OR logic', setup: '<strong>Set 1:</strong> A | B (logic set to OR)', outcome: '(A | B)', type: 'Core', testimLink: '#' },
+            { id: 'FW-ADV-003', desc: 'Two Groups with AND', setup: '<strong>Set 1:</strong> A & B<br><strong>Joiner:</strong> AND<br><strong>Set 2:</strong> C & D', outcome: '(A & B) & (C & D)', type: 'Core', testimLink: '#' },
+            { id: 'FW-ADV-004', desc: 'Two Groups with OR', setup: '<strong>Set 1:</strong> A & B<br><strong>Joiner:</strong> OR<br><strong>Set 2:</strong> C & D', outcome: '(A & B) | (C & D)', type: 'Core', testimLink: '#' },
+            { id: 'FW-ADV-005', desc: 'Two Groups, Mixed Logic', setup: '<strong>Set 1:</strong> A & B<br><strong>Joiner:</strong> AND<br><strong>Set 2:</strong> C | D', outcome: '(A & B) & (C | D)', type: 'Core', testimLink: '#' },
+            { id: 'FW-ADV-006', desc: 'Max Complexity (AND, OR)', setup: '<strong>Set 1:</strong> A & B<br><strong>Joiner:</strong> AND<br><strong>Set 2:</strong> C | D<br><strong>Joiner:</strong> OR<br><strong>Set 3:</strong> E & F', outcome: '((A & B) & (C | D)) | (E & F)', type: 'Edge Case', testimLink: '#' },
+            { id: 'FW-ADV-007', desc: 'Max Complexity (OR, AND)', setup: '<strong>Set 1:</strong> A | B<br><strong>Joiner:</strong> OR<br><strong>Set 2:</strong> C & D<br><strong>Joiner:</strong> AND<br><strong>Set 3:</strong> E | F', outcome: '(A | B) | ((C & D) & (E | F))', type: 'Edge Case', testimLink: '#' },
+            { id: 'FW-ADV-008', desc: 'Attempt > 3 groups', setup: 'Attempt to create and submit 4 sets.', outcome: 'Submit fails / Validation Error', type: 'Negative', testimLink: '#' }
         ];
 
         function populateSimpleTable() {
@@ -199,6 +162,7 @@
                         <td class="p-4 text-slate-800">${item.desc}</td>
                         <td class="p-4 text-slate-600">${item.setup}</td>
                         <td class="p-4 text-center"><span class="table-code">${item.outcome}</span></td>
+                        <td class="p-4 text-center"><a href="${item.testimLink}" target="_blank" class="px-3 py-1 text-sm font-medium rounded-full bg-sky-100 text-sky-700 hover:bg-sky-200">View Test</a></td>
                     </tr>
                 `;
                 tableBody.innerHTML += row;
@@ -208,214 +172,59 @@
         function populateAdvancedTable() {
             const tableBody = document.getElementById('advanced-logic-table');
             advancedLogicData.forEach(item => {
-                if (item.category) {
-                    const categoryRow = `
-                        <tr>
-                            <td colspan="5" class="p-4 pt-8 text-lg font-semibold text-sky-700 bg-sky-50">${item.category}</td>
-                        </tr>`;
-                    tableBody.innerHTML += categoryRow;
-                } else {
-                    const typeClass = item.type.toLowerCase().replace(' ', '-');
-                    const row = `
-                        <tr class="hover:bg-slate-50">
-                            <td class="p-4 font-medium text-slate-700"><span class="table-code">${item.id}</span></td>
-                            <td class="p-4 text-slate-800">${item.desc}</td>
-                            <td class="p-4 text-slate-600">${item.setup}</td>
-                            <td class="p-4 text-center"><span class="table-code">${item.outcome}</span></td>
-                            <td class="p-4 text-center"><span class="tag tag-${typeClass}">${item.type}</span></td>
-                        </tr>
-                    `;
-                    tableBody.innerHTML += row;
-                }
+                const row = `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 font-medium text-slate-700"><span class="table-code">${item.id}</span></td>
+                        <td class="p-4 text-slate-800">${item.desc}</td>
+                        <td class="p-4 text-slate-600">${item.setup}</td>
+                        <td class="p-4 text-center"><span class="table-code">${item.outcome}</span></td>
+                        <td class="p-4 text-center"><span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600">${item.type}</span></td>
+                        <td class="p-4 text-center"><a href="${item.testimLink}" target="_blank" class="px-3 py-1 text-sm font-medium rounded-full bg-sky-100 text-sky-700 hover:bg-sky-200">View Test</a></td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
             });
         }
 
-        const flowchartNodes = [
-            { id: 'a', text: 'Start', style: 'bg-red-200 border-red-400 text-red-800', type: 'terminal' },
-            { id: 'b', text: 'Testim Suite Execution', style: 'bg-blue-100 border-blue-300 text-blue-800', type: 'process' },
-            { id: 'c', text: 'Setup Test: Create Targeting Sets', style: 'bg-green-100 border-green-300 text-green-800', type: 'process' },
-            { id: 'd', text: 'Targeting Sets Created', style: 'bg-green-100 border-green-300 text-green-800', type: 'io' },
-            { id: 'e', text: 'Validation Test: Data-Driven', style: 'bg-green-100 border-green-300 text-green-800', type: 'process' },
-            { id: 'f', text: 'Test Data Source', style: 'bg-yellow-100 border-yellow-300 text-yellow-800', type: 'io' },
-            { id: 'g', text: 'Loop for each scenario', style: 'bg-purple-100 border-purple-300 text-purple-800', type: 'decision' },
-            { id: 'h', text: '1. Create Campaign Item', style: 'bg-white border-slate-300', type: 'process' },
-            { id: 'i', text: '2. Apply AUTOTEST_SET_*', style: 'bg-white border-slate-300', type: 'process' },
-            { id: 'j', text: '3. Submit to Freewheel', style: 'bg-white border-slate-300', type: 'process' },
-            { id: 'k', text: '4. Validate Logic in Freewheel', style: 'bg-white border-slate-300', type: 'process' },
-            { id: 'l', text: 'Test Suite Completion', style: 'bg-blue-100 border-blue-300 text-blue-800', type: 'process' },
-            { id: 'm', text: 'Teardown Test: Clean Up', style: 'bg-green-100 border-green-300 text-green-800', type: 'process' },
-            { id: 'n', text: 'AUTOTEST_SET_* Deleted', style: 'bg-green-100 border-green-300 text-green-800', type: 'io' },
-            { id: 'o', text: 'End', style: 'bg-red-200 border-red-400 text-red-800', type: 'terminal' }
-        ];
+        function exportToCsv() {
+            const headers = ['testCaseID', 'description', 'setupLogic', 'expectedOutcome', 'testType'];
+            const allData = [
+                ...simpleLogicData.map(d => ({ ...d, testType: 'Simple' })),
+                ...advancedLogicData.map(d => ({ ...d, testType: d.type || '' }))
+            ];
+            
+            let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
 
-        const nodePositions = {
-            a: { top: 0, left: '50%' },
-            b: { top: 100, left: '50%' },
-            c: { top: 200, left: '25%' },
-            d: { top: 300, left: '25%' },
-            e: { top: 200, left: '75%' },
-            f: { top: 100, left: '75%' },
-            g: { top: 300, left: '75%' },
-            h: { top: 400, left: '75%' },
-            i: { top: 500, left: '75%' },
-            j: { top: 600, left: '75%' },
-            k: { top: 700, left: '75%' },
-            l: { top: 800, left: '50%' },
-            m: { top: 900, left: '50%' },
-            n: { top: 1000, left: '50%' },
-            o: { top: 1100, left: '50%' }
-        };
-
-        const flowchartConnections = [
-            { from: 'a', to: 'b' }, { from: 'b', to: 'c' }, { from: 'b', to: 'e' },
-            { from: 'c', to: 'd' }, { from: 'd', to: 'e' }, { from: 'f', to: 'e' },
-            { from: 'e', to: 'g' }, { from: 'g', to: 'h' }, { from: 'h', to: 'i' },
-            { from: 'i', to: 'j' }, { from: 'j', to: 'k' }, { from: 'k', to: 'g', type: 'loop' },
-            { from: 'g', to: 'l' }, { from: 'l', to: 'm' }, { from: 'm', to: 'n' },
-            { from: 'n', to: 'o' }
-        ];
-        
-        function renderFlowchart() {
-            const container = document.getElementById('flowchart-container');
-            if (!container) return;
-            container.innerHTML = ''; 
-
-            flowchartNodes.forEach(node => {
-                const el = document.createElement('div');
-                el.id = `node-${node.id}`;
-                el.className = `flowchart-node absolute p-3 md:p-4 text-center text-xs md:text-sm font-medium border-2 rounded-lg transform -translate-x-1/2 ${node.style}`;
-                
-                if (node.type === 'decision') {
-                    el.style.transform = 'translateX(-50%) rotate(45deg)';
-                    el.innerHTML = `<div class="transform -rotate-45deg">${node.text}</div>`;
-                } else if (node.type === 'io') {
-                    el.style.clipPath = 'polygon(20% 0, 100% 0, 80% 100%, 0 100%)';
-                    el.innerHTML = node.text;
-                }
-                else {
-                    el.innerHTML = node.text;
-                }
-
-                el.style.top = `${nodePositions[node.id].top}px`;
-                el.style.left = nodePositions[node.id].left;
-                el.style.minWidth = '120px';
-                
-                container.appendChild(el);
+            allData.forEach(item => {
+                const setupPlainText = item.setup.replace(/<br>/g, '; ').replace(/<[^>]*>?/gm, '');
+                const row = [
+                    `"${item.id}"`,
+                    `"${item.desc}"`,
+                    `"${setupPlainText}"`,
+                    `"${item.outcome}"`,
+                    `"${item.testType}"`
+                ].join(",");
+                csvContent += row + "\n";
             });
-            // Delay drawing connections to ensure nodes are rendered
-            setTimeout(drawConnections, 0);
-        }
 
-        function drawConnections() {
-            const container = document.getElementById('flowchart-container');
-            if (!container) return;
-            const existingLines = container.querySelectorAll('.flowchart-line, .arrow-down, .arrow-right, .arrow-left');
-            existingLines.forEach(el => el.remove());
-
-            flowchartConnections.forEach(conn => {
-                const fromEl = document.getElementById(`node-${conn.from}`);
-                const toEl = document.getElementById(`node-${conn.to}`);
-
-                if (!fromEl || !toEl) return;
-                
-                const fromRect = fromEl.getBoundingClientRect();
-                const toRect = toEl.getBoundingClientRect();
-                const containerRect = container.getBoundingClientRect();
-
-                const from = {
-                    x: fromRect.left + fromRect.width / 2 - containerRect.left,
-                    y: fromRect.top + fromRect.height / 2 - containerRect.top
-                };
-                const to = {
-                    x: toRect.left + toRect.width / 2 - containerRect.left,
-                    y: toRect.top + toRect.height / 2 - containerRect.top
-                };
-                
-                if (conn.type === 'loop') {
-                    // Corrected logic for the loopback arrow from 'k' to 'g'
-                    const fromCenterY = fromRect.top + fromRect.height / 2 - containerRect.top;
-                    const toCenterY = toRect.top + toRect.height / 2 - containerRect.top;
-                    const fromRightX = fromRect.right - containerRect.left;
-                    const toRightX = toRect.right - containerRect.left;
-
-                    const loopOffset = 40;
-
-                    const line1 = createLine(fromRightX, fromCenterY, loopOffset, 2);
-                    const line2 = createLine(fromRightX + loopOffset, toCenterY, 2, fromCenterY - toCenterY);
-                    const line3 = createLine(toRightX + 5, toCenterY, loopOffset - 5, 2);
-                    
-                    const arrow = document.createElement('div');
-                    arrow.className = 'arrow-left';
-                    arrow.style.left = `${toRightX + 2}px`;
-                    arrow.style.top = `${toCenterY}px`;
-                    
-                    container.append(line1, line2, line3, arrow);
-                } else {
-                    const fromY = fromRect.bottom - containerRect.top;
-                    const toY = toRect.top - containerRect.top;
-                    const fromX = fromRect.left - containerRect.left + fromRect.width / 2;
-                    const toX = toRect.left - containerRect.left + toRect.width / 2;
-
-                    if (fromX === toX) { // Vertical line
-                        if (toY < fromY) return; // Avoid drawing over elements
-                        const line = createLine(fromX - 1, fromY, 2, toY - fromY);
-                        container.appendChild(line);
-                        
-                        const arrow = document.createElement('div');
-                        arrow.className = 'arrow-down';
-                        arrow.style.left = `${toX}px`;
-                        arrow.style.top = `${toY - 10}px`;
-                        container.appendChild(arrow);
-
-                    } else if (fromRect.top === toRect.top) { // Horizontal line
-                        const line = createLine(Math.min(fromX,toX) + fromRect.width/2, from.y, Math.abs(fromX-toX) - fromRect.width, 2);
-                        container.appendChild(line);
-
-                        const arrow = document.createElement('div');
-                        arrow.className = 'arrow-right';
-                        arrow.style.top = `${to.y}px`;
-                        arrow.style.left = `${toX - (toRect.width / 2) - 8}px`;
-                        container.appendChild(arrow);
-                    } else { // L-shaped line
-                        const cornerY = fromY + (toY - fromY) / 2;
-                        
-                        const line1 = createLine(fromX - 1, fromY, 2, cornerY - fromY);
-                        const line2 = createLine(Math.min(fromX, toX), cornerY - 1, Math.abs(toX - fromX), 2);
-                        const line3 = createLine(toX - 1, cornerY, 2, toY - cornerY);
-                        container.append(line1, line2, line3);
-
-                        const arrow = document.createElement('div');
-                        if (toY > fromY) {
-                            arrow.className = 'arrow-down';
-                            arrow.style.left = `${toX}px`;
-                            arrow.style.top = `${toY - 10}px`;
-                        } else {
-                            arrow.className = 'arrow-right';
-                            arrow.style.top = `${toY}px`;
-                            arrow.style.left = fromX < toX ? `${toX - 10}px` : `${toX + 2}px`;
-                        }
-                        container.appendChild(arrow);
-                    }
-                }
-            });
-        }
-        
-        function createLine(x, y, w, h) {
-            const line = document.createElement('div');
-            line.className = 'flowchart-line';
-            line.style.left = `${x}px`;
-            line.style.top = `${y}px`;
-            line.style.width = `${Math.max(w, 2)}px`;
-            line.style.height = `${Math.max(h, 2)}px`;
-            return line;
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "freewheel_test_plan.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
 
         document.addEventListener('DOMContentLoaded', () => {
             populateSimpleTable();
             populateAdvancedTable();
-            renderFlowchart();
-            window.addEventListener('resize', renderFlowchart);
+
+            const exportBtn = document.getElementById('export-csv-btn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', exportToCsv);
+            }
         });
 
     </script>
